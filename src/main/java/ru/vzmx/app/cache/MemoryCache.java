@@ -1,50 +1,48 @@
 package ru.vzmx.app.cache;
 
 import ru.vzmx.app.cache.strategy.CacheStrategy;
-import ru.vzmx.app.cache.strategy.Strategy;
 
-import javax.annotation.concurrent.NotThreadSafe;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-@NotThreadSafe
-public class MemoryCache<K, V> implements Cache<K, V> {
-    private final Strategy<K> strategy;
+public class MemoryCache<K, V> extends CommonCache<K, V> implements Cache<K, V> {
     private final Map<K, V> holder = new HashMap<>();
-    private final long maxSize;
 
-    @SuppressWarnings("WeakerAccess")
-    public MemoryCache(CacheStrategy strategy, long size) {
-        this.strategy = strategy.create();
-        maxSize = size;
+    public MemoryCache(CacheStrategy strategy, int size, Cache<K, V> nextCache) {
+        super(strategy.create(), size, nextCache);
+    }
+
+    public MemoryCache(CacheStrategy strategy, int size) {
+        this(strategy, size, null);
     }
 
     @Override
-    public void put(K key, V value) {
-        if (holder.size() == maxSize && !holder.containsKey(key)) {
-            remove(strategy.selectKeyToRemove());
-        }
-        if (holder.put(key, value) != null) {
-            // if key was present we need to remove it from strategy
-            strategy.removed(key);
-        }
-        strategy.added(key);
+    protected boolean containsKey(K key) {
+        return holder.containsKey(key);
     }
 
     @Override
-    public Optional<V> get(K key) {
-        Optional<V> value = Optional.ofNullable(holder.get(key));
-        value.ifPresent(v -> strategy.accessed(key));
-        return value;
+    protected boolean removeInternal(K key) {
+        return holder.remove(key) != null;
     }
 
     @Override
-    public void remove(K key) {
-        Optional.ofNullable(holder.remove(key)).ifPresent(v -> strategy.removed(key));
-    }
-
-    @Override
-    public void clear() {
+    protected void clearInternal() {
         holder.clear();
-        strategy.cleared();
+    }
+
+    @Override
+    protected void putInternal(K key, V value) {
+        holder.put(key, value);
+    }
+
+    @Override
+    protected int sizeInternal() {
+        return holder.size();
+    }
+
+    @Override
+    protected V getInternal(K key) {
+        return holder.get(key);
     }
 }
