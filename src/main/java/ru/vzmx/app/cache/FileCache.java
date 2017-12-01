@@ -15,7 +15,7 @@ public class FileCache<K, V> extends CommonCache<K, V> implements Cache<K, V> {
     private final Map<K, String> keyToFileMapping = new HashMap<>();
 
     protected FileCache(CacheStrategy strategy, int maxSize, Path cacheDir) {
-        super(strategy.create(), maxSize, null);
+        super(strategy, maxSize);
         this.cacheDir = Objects.requireNonNull(cacheDir);
         ensureCacheDir(cacheDir);
     }

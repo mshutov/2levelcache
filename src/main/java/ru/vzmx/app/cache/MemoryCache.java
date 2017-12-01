@@ -9,7 +9,7 @@ public class MemoryCache<K, V> extends CommonCache<K, V> implements Cache<K, V> 
     private final Map<K, V> holder = new HashMap<>();
 
     public MemoryCache(CacheStrategy strategy, int size, Cache<K, V> nextCache) {
-        super(strategy.create(), size, nextCache);
+        super(strategy, size, nextCache);
     }
 
     public MemoryCache(CacheStrategy strategy, int size) {

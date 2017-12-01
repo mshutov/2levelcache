@@ -1,5 +1,6 @@
 package ru.vzmx.app.cache;
 
+import ru.vzmx.app.cache.strategy.CacheStrategy;
 import ru.vzmx.app.cache.strategy.Strategy;
 
 import java.util.Optional;
@@ -9,10 +10,14 @@ abstract class CommonCache<K, V> implements Cache<K, V> {
     private final int maxSize;
     private final Cache<K, V> nextCache;
 
-    CommonCache(Strategy<K> strategy, int maxSize, Cache<K, V> nextCache) {
-        this.strategy = strategy;
+    CommonCache(CacheStrategy strategy, int maxSize, Cache<K, V> nextCache) {
+        this.strategy = strategy.create();
         this.maxSize = maxSize;
         this.nextCache = nextCache != null ? nextCache : new EmptyCache<>();
+    }
+
+    CommonCache(CacheStrategy strategy, int maxSize) {
+        this(strategy, maxSize, null);
     }
 
     protected abstract boolean containsKey(K key);
@@ -72,5 +77,28 @@ abstract class CommonCache<K, V> implements Cache<K, V> {
         clearInternal();
         strategy.cleared();
         nextCache.clear();
+    }
+
+    private static class EmptyCache<K, V> implements Cache<K, V> {
+
+        @Override
+        public void put(K key, V value) {
+
+        }
+
+        @Override
+        public Optional<V> get(K key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void remove(K key) {
+
+        }
+
+        @Override
+        public void clear() {
+
+        }
     }
 }
