@@ -16,6 +16,11 @@ public enum CacheStrategy {
         public <K> Strategy<K> create() {
             return new LRUStrategy<>();
         }
+    }, MRU {
+        @Override
+        public <K> Strategy<K> create() {
+            return new MRUStrategy<>();
+        }
     }, NO_STRATEGY {
         @Override
         public <K> Strategy<K> create() {
