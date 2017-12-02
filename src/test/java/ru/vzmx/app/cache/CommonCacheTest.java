@@ -41,6 +41,6 @@ class CommonCacheTest {
     }
 
     <K> void assertCacheState(Cache<K, ?> cache, Map<K, Boolean> expected) {
-        expected.forEach((key, isPresent) -> Assert.assertEquals(isPresent, cache.get(key).isPresent()));
+        expected.forEach((key, isPresent) -> Assert.assertEquals(isPresent, cache.containsKey(key)));
     }
 }

@@ -17,7 +17,7 @@ public class MemoryCache<K, V> extends CommonCache<K, V> implements Cache<K, V> 
     }
 
     @Override
-    protected boolean containsKey(K key) {
+    protected boolean containsKeyInternal(K key) {
         return holder.containsKey(key);
     }
 

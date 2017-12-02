@@ -20,7 +20,7 @@ abstract class CommonCache<K, V> implements Cache<K, V> {
         this(strategy, maxSize, null);
     }
 
-    protected abstract boolean containsKey(K key);
+    protected abstract boolean containsKeyInternal(K key);
 
     protected abstract boolean removeInternal(K key);
 
@@ -34,7 +34,7 @@ abstract class CommonCache<K, V> implements Cache<K, V> {
 
     @Override
     public void put(K key, V value) {
-        boolean keyAlreadyPresent = containsKey(key);
+        boolean keyAlreadyPresent = containsKeyInternal(key);
         if (sizeInternal() == maxSize && !keyAlreadyPresent) {
             K keyToRemove = strategy.selectKeyToRemove();
             V val = getInternal(keyToRemove);
@@ -79,6 +79,11 @@ abstract class CommonCache<K, V> implements Cache<K, V> {
         nextCache.clear();
     }
 
+    @Override
+    public boolean containsKey(K key) {
+        return containsKeyInternal(key) || nextCache.containsKey(key);
+    }
+
     private static class EmptyCache<K, V> implements Cache<K, V> {
 
         @Override
@@ -99,6 +104,11 @@ abstract class CommonCache<K, V> implements Cache<K, V> {
         @Override
         public void clear() {
 
+        }
+
+        @Override
+        public boolean containsKey(K key) {
+            return false;
         }
     }
 }

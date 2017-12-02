@@ -29,7 +29,7 @@ public class FileCache<K, V> extends CommonCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    protected boolean containsKey(K key) {
+    protected boolean containsKeyInternal(K key) {
         return keyToFileMapping.containsKey(key);
     }
 
