@@ -2,23 +2,19 @@ package ru.vzmx.app.cache;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import ru.vzmx.app.cache.strategy.CacheStrategy;
+import ru.vzmx.app.cache.providers.MemoryProvider;
+import ru.vzmx.app.cache.strategies.*;
 
 public class CacheTest extends CommonCacheTest {
 
     @Test
-    public void oneValueTestOfNoStrategyCache() {
-        oneValueTest(new MemoryCache<>(CacheStrategy.NO_STRATEGY, 2));
-    }
-
-    @Test
     public void oneValueTestOfFIFOStrategyCache() {
-        oneValueTest(new MemoryCache<>(CacheStrategy.FIFO, 2));
+        oneValueTest(new LeveledCache<>(new FIFOCacheStrategy<>(), new MemoryProvider<>(), 2));
     }
 
     @Test
     public void fifoStrategyTest() {
-        Cache<String, Integer> cache = new MemoryCache<>(CacheStrategy.FIFO, 2);
+        Cache<String, Integer> cache = new LeveledCache<>(new FIFOCacheStrategy<>(), new MemoryProvider<>(), 2);
 
         cache.put(key1, 1);
         cache.put(key2, 2);
@@ -30,7 +26,7 @@ public class CacheTest extends CommonCacheTest {
 
     @Test
     public void lifoStrategyTest() {
-        Cache<String, Integer> cache = new MemoryCache<>(CacheStrategy.LIFO, 2);
+        Cache<String, Integer> cache = new LeveledCache<>(new LIFOCacheStrategy<>(), new MemoryProvider<>(), 2);
 
         cache.put(key1, 1);
         cache.put(key2, 2);
@@ -42,7 +38,7 @@ public class CacheTest extends CommonCacheTest {
 
     @Test
     public void lruStrategyTest() throws Exception {
-        Cache<String, Integer> cache = new MemoryCache<>(CacheStrategy.LRU, 3);
+        Cache<String, Integer> cache = new LeveledCache<>(new LRUStrategy<>(), new MemoryProvider<>(), 3);
 
         cache.put(key1, 1);
 
@@ -60,7 +56,7 @@ public class CacheTest extends CommonCacheTest {
 
     @Test
     public void mruStrategyTest() throws Exception {
-        Cache<String, Integer> cache = new MemoryCache<>(CacheStrategy.MRU, 3);
+        Cache<String, Integer> cache = new LeveledCache<>(new MRUStrategy<>(), new MemoryProvider<>(), 3);
 
         cache.put(key1, 1);
 

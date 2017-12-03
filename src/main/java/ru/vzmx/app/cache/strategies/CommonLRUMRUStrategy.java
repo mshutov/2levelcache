@@ -1,10 +1,12 @@
-package ru.vzmx.app.cache.strategy;
+package ru.vzmx.app.cache.strategies;
+
+import ru.vzmx.app.cache.Strategy;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class CommonRUStrategy<K> implements Strategy<K> {
+abstract class CommonLRUMRUStrategy<K> implements Strategy<K> {
     private Map<K, LocalDateTime> holder = new HashMap<>();
 
     @Override

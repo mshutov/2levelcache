@@ -1,4 +1,4 @@
-package ru.vzmx.app.cache.strategy;
+package ru.vzmx.app.cache;
 
 public interface Strategy<K> {
     void added(K key);

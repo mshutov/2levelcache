@@ -1,23 +1,20 @@
-package ru.vzmx.app.cache;
+package ru.vzmx.app.cache.providers;
 
-import ru.vzmx.app.cache.strategy.CacheStrategy;
+import ru.vzmx.app.cache.Provider;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
-public class FileCache<K, V> extends CommonCache<K, V> implements Cache<K, V> {
+public class FileProvider<K, V> implements Provider<K, V> {
     private final Path cacheDir;
-    private final Map<K, String> keyToFileMapping = new HashMap<>();
+    private final Map<K, String> keyToFileMapping;
 
-    protected FileCache(CacheStrategy strategy, int maxSize, Path cacheDir) {
-        super(strategy, maxSize);
+    public FileProvider(Path cacheDir) {
         this.cacheDir = Objects.requireNonNull(cacheDir);
         ensureCacheDir(cacheDir);
+        keyToFileMapping = new HashMap<>();
     }
 
     private void ensureCacheDir(Path cacheDir) {
@@ -29,38 +26,38 @@ public class FileCache<K, V> extends CommonCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    protected boolean containsKeyInternal(K key) {
+    public boolean containsKey(K key) {
         return keyToFileMapping.containsKey(key);
     }
 
     @Override
-    protected boolean removeInternal(K key) {
+    public boolean remove(K key) {
         String fileName = keyToFileMapping.remove(key);
         return fileName != null && removeFile(fileName);
     }
 
     @Override
-    protected void clearInternal() {
+    public void clear() {
         keyToFileMapping.values().forEach(this::removeFile);
         keyToFileMapping.clear();
     }
 
     @Override
-    protected void putInternal(K key, V value) {
+    public void put(K key, V value) {
         String fileName = UUID.randomUUID().toString();
         keyToFileMapping.put(key, fileName);
         writeToFile(fileName, value);
     }
 
     @Override
-    protected int sizeInternal() {
+    public int size() {
         return keyToFileMapping.size();
     }
 
     @Override
-    protected V getInternal(K key) {
+    public Optional<V> get(K key) {
         String fileName = keyToFileMapping.get(key);
-        return fileName != null ? readFromFile(fileName) : null;
+        return Optional.ofNullable(fileName != null ? readFromFile(fileName) : null);
     }
 
     private void writeToFile(String fileName, V value) {

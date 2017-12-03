@@ -3,14 +3,18 @@ package ru.vzmx.app.cache;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
-import ru.vzmx.app.cache.strategy.CacheStrategy;
+import ru.vzmx.app.cache.providers.MemoryProvider;
+import ru.vzmx.app.cache.strategies.FIFOCacheStrategy;
 
 import java.util.Optional;
 
 public class DoubleCacheTest extends CommonCacheTest {
 
-    private final Cache<String, Integer> secondLevelCache = new MemoryCache<>(CacheStrategy.FIFO, 2);
-    private final Cache<String, Integer> cache = new MemoryCache<>(CacheStrategy.FIFO, 2, secondLevelCache);
+    private final Cache<String, Integer> secondLevelCache =
+            new LeveledCache<>(new FIFOCacheStrategy<>(), new MemoryProvider<>(), 2);
+
+    private final Cache<String, Integer> cache =
+            new LeveledCache<>(new FIFOCacheStrategy<>(), new MemoryProvider<>(), 2, secondLevelCache);
 
     @Test
     public void oneValueTestForDoubleCache(){
