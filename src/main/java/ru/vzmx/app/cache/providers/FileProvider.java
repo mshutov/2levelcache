@@ -45,8 +45,11 @@ public class FileProvider<K, V> implements Provider<K, V> {
     @Override
     public void put(K key, V value) {
         String fileName = UUID.randomUUID().toString();
-        keyToFileMapping.put(key, fileName);
         writeToFile(fileName, value);
+        String oldFileName = keyToFileMapping.put(key, fileName);
+        if (oldFileName != null) {
+            removeFile(oldFileName);
+        }
     }
 
     @Override
@@ -62,13 +65,13 @@ public class FileProvider<K, V> implements Provider<K, V> {
 
     private void writeToFile(String fileName, V value) {
         try (
-                FileOutputStream fout = new FileOutputStream(getFile(fileName), true);
+                FileOutputStream fout = new FileOutputStream(getFile(fileName));
                 ObjectOutputStream oos = new ObjectOutputStream(fout)
         ) {
             oos.writeObject(value);
         } catch (Exception ex) {
-            // in case of error we could made some cleanup but not for this simple implementation
-            ex.printStackTrace();
+            removeFile(fileName);
+            throw new IllegalStateException("Cannot write cache value to file: " + fileName, ex);
         }
     }
 
@@ -84,10 +87,8 @@ public class FileProvider<K, V> implements Provider<K, V> {
             //noinspection unchecked
             return (V) ois.readObject();
         } catch (Exception ex) {
-            // it may be useful to delete file if it is corrupted but not for this simple implementation
-            ex.printStackTrace();
+            throw new IllegalStateException("Cannot read cache value from file: " + fileName, ex);
         }
-        return null;
     }
 
     private boolean removeFile(String fileName) {
